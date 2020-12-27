@@ -1,0 +1,18 @@
+The final output for both the parts is same. 
+However, the initial value that the threads start with is different as already printed.
+This happens because processes are totally independent and do not share memory.
+But a thread may share some memory with the fellow threads.
+A race condition occurs when two or more threads can access shared data and they try to change it at the same time. 
+Because the thread scheduling algorithm can swap between threads at any time, you don't know the order in which the threads will attempt to access the shared data. 
+Therefore, the result of the change in data is dependent on the thread scheduling algorithm, i.e. both threads are "racing" to access/change the data.
+(Referred stackoverflow)
+This can be understood in the manner that creation of a new process is similar to cloning.
+But creation of a thread is like creating an arm from the same brain.
+In the first part, the child and the parent both are different processes so they see the value of the variable as 10 only as initialised globally. 
+They work independently and with the use of the while loop they are able to do their respective tasks.
+However, in the second task, the value of the global variable as seen by the child thread is different from that of the parent thread. 
+So even if the final output is same the initial value is different.
+The final value is same because I have used a while loop so it does not care about the number of iterations but just does whatever is there in the condition.
+Had I used a for loop and iterated both loops (in parent and child thread) with same number of iterations the final output would have been different. 
+Due to this only I have printed the initial value.
+Since var is a global variable it is shared by the threads and for processes there is no sharing.

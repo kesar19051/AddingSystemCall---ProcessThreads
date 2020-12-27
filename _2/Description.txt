@@ -1,0 +1,71 @@
+Compiling the source code
+	The linux 5.4 source code is downloaded and it's extracted.
+	Using this command: wget https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.9.tar.xz
+	After this I extracted using: sudo tar -xvf linux-5.9.tar.xz -C/usr/src/
+	cd /usr/src/linux-5.9/
+Writing the system call: 
+	Create a directory sh_task_info, in this directory create a c file called sh_task_info.c 
+	Create a Makefile in the sh_task_info directory and add the following line to it:
+		obj-y := sh_task_info.o
+	This ensures that the sh_task_info.c file is compiled and included in the kernel source code.
+	Now, in the parent directory, in its Makefile, I add sh_task_info/ to the core-y line.
+	This is to tell the compiler that the source files of the system call sys_sh_task_info are in present in the sh_task_info directory.
+	cd arch/x86/entry/syscalls/
+	To the last line of the document I add the system call entry: 548       64        sh_task_info          sys_sh_task_info
+	Here I’ve written 548 because in the previous line the number entry was 547. 64 is used because the system is 64 bits.
+	To compile the kernel, I used these commands:
+	sudo apt-get install gcc
+	sudo apt-get install libncurses5-dev
+	sudo apt-get install bison
+	sudo apt-get install flex
+	sudo apt-get install libssl-dev
+	sudo apt-get install libelf-dev
+	sudo apt-get update
+	sudo apt-get upgrade
+	These are some packages that need to be installed.
+	After that I configure the kernel using sudo make menuconfig.
+
+	Then to compile I used sudo make -j4
+	4 is the number of cores of processor.
+	sudo make modules_install install: this will create some files under /boot/ directory and it will automatically make a entry in your grub.cfg. 
+	
+	Now, I restart the system to check the system call.
+
+Checking the system call:
+	The file test.c is the sample test code. 
+	If the input process ID, and there is no error in the given pid then the filename sh_task_info() 
+	is executed correctly.
+
+	The makefile provided did not have any command line options, so to use that we need to add the command line arguments as well.
+	The id number of the process and the file to which we need to write.
+	The file would be created at that time only because I have used flags O_WRONLY and O_CREAT along with a pipe.
+	I have used SYSCALL_DEFINE2 to define the system call. It has struct task_struct, it takes the pid of the process and 
+	iterates throught all the process, when it matches the pid the if statement is executed and the details are written to the file name as given.
+	I have used kernel_write to write to the file.
+
+	To test, enter: make compile
+	After this enter : ./a.out 1 file.txt
+				It will print the required lines and the details will be written to the file called file.txt
+				The file.txt will have details process ID, process state, RT_priority, static priority and normal priority.
+				We can check the log using dmesg.
+
+Errors handled:
+	If the user enters pid <=0 or greater than 32768, the function will return the errno 22 EINVAL invalid argument.
+	If the user enters a character or string other than a valid pid then also it will return the errno 22 EINVAL invalid argument.
+	Also, if no file name is written, the system call will not execute and 'file name not given' will be printed.
+	Commands: ./a.out aaa file1.txt
+		  ./a.out 0 file2.txt
+	These will throw error.
+
+Moreover, to create the file name given the mode used 0644 which means that only the file owner would read and write.
+
+I have referred to a github repository to write the system call, the link is 
+https://github.com/snehasi/Linux_System_call
+
+
+
+
+
+
+
+
